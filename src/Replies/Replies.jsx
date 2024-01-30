@@ -1,6 +1,6 @@
 import CommentItem from "../CommentItem/CommentItem"
 
-const Replies = ({ replies = [], name, commentText  ,onPostSubmit, onCommentChange, onNameChange, parentIndex, commentReplyIndex }) => {
+const Replies = ({ replies = [], name, commentText, onPostSubmit, onCommentChange, onNameChange, parentIndex, commentIndex, replyEditIndex, onEdit, onDelete }) => {
     let commentProps = {
         inputPlaceholder: "Name",
         headerValue: 'Reply',
@@ -8,10 +8,9 @@ const Replies = ({ replies = [], name, commentText  ,onPostSubmit, onCommentChan
         onTextAreaChange: onCommentChange,
         onSubmit: onPostSubmit,
         parentIndex: parentIndex,
-        isEditMode: parentIndex === commentReplyIndex
     }
 
-    if(parentIndex === commentReplyIndex) {
+    if (parentIndex === commentIndex && !Number.isInteger(replyEditIndex)) {
         commentProps = {
             ...commentProps,
             textAreaValue: commentText,
@@ -22,20 +21,39 @@ const Replies = ({ replies = [], name, commentText  ,onPostSubmit, onCommentChan
     return (
         <>
             {
-                parentIndex === commentReplyIndex ? <CommentItem {...commentProps} /> : null
+               parentIndex === commentIndex && !Number.isInteger(replyEditIndex)  ? <CommentItem {...commentProps} isEditMode={true} /> : null
             }
             {
-                replies.length  ? replies?.map((reply, index) => {
+                replies.length ? replies?.map((reply, index) => {
+                    const isEditMode = parentIndex === commentIndex && replyEditIndex === index
+
+                    if (isEditMode) {
+                        return (
+                            <CommentItem
+                                {...commentProps}
+                                parentIndex={parentIndex}
+                                index={index}
+                                inputValue={name}
+                                headerValue={'Reply'}
+                                textAreaValue={commentText}
+                                name={reply.name}
+                                onEdit={onEdit}
+                                isEditMode={true}
+                            />
+                        )
+                    }
                     return (
-                        <CommentItem 
-                        {...commentProps} 
-                        parentIndex={parentIndex} 
-                        index={index} 
-                        inputValue={reply.name} 
-                        headerValue={reply.headerValue}
-                        textAreaValue={reply.commentText}
-                        name={reply.name}
-                    />
+                        <CommentItem
+                            {...commentProps}
+                            parentIndex={parentIndex}
+                            index={index}
+                            inputValue={reply.name}
+                            headerValue={reply.headerValue}
+                            textAreaValue={reply.commentText}
+                            name={reply.name}
+                            onEdit={onEdit}
+                            onDelete={onDelete}
+                        />
                     )
                 }) : null
             }

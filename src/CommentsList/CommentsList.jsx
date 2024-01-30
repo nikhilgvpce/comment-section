@@ -1,12 +1,14 @@
 import { useReducer } from "react";
 import CommentItem from "../CommentItem/CommentItem";
 import Replies from "../Replies/Replies";
-import "./CommentsList.css"
+import "./CommentsList.css";
+
+const dummyComments = JSON.parse(localStorage.getItem('comments') || null)
 
 const initialState = {
     name: '',
     commentText: '',
-    comments: [
+    comments: dummyComments || [
         {
             headerValue: 'Comment:',
             name: 'Nikhil',
@@ -16,7 +18,7 @@ const initialState = {
             replies: [{ name: 'Akhil', headerValue: 'Reply', commentText: 'Hi I am reply to a comment', date: '' }]
         }
     ],
-    commentReplyIndex: '',
+    commentIndex: '',
     replyEditIndex: ''
 }
 
@@ -43,18 +45,24 @@ function reducer(state = { initialState }, action = { type, payload: {} }) {
             }
         case 'POST_COMMENT':
             // modifyComments(comments, indexes)
+            localStorage.setItem('comments', JSON.stringify(action.payload.comments))
             return {
                 ...state,
                 comments: action.payload.comments,
                 name: '',
                 commentText: '',
-                commentReplyIndex: ''
+                commentIndex: ''
 
             }
         case 'SET_REPLY_INDEX':
             return {
                 ...state,
-                commentReplyIndex: action.payload.commentReplyIndex
+                commentIndex: action.payload.commentIndex,
+            }
+        case 'SET_REPLY_EDIT_INDEX':
+            return {
+                ...state,
+                replyEditIndex: action.payload.replyEditIndex
             }
     }
 }
@@ -88,11 +96,15 @@ const Comments = () => {
         }
         let comments = state.comments
         if (Number.isInteger(parentIndex)) {
-            newComment.headerValue = 'Reply'
-            comments[parentIndex].replies = [
-                ...comments[parentIndex].replies,
-                newComment
-            ]
+            newComment.headerValue = 'Reply';
+            if (Number.isInteger(index)) {
+                comments[parentIndex].replies[index] = newComment
+            } else {
+                comments[parentIndex].replies = [
+                    ...comments[parentIndex].replies,
+                    newComment
+                ]
+            }
         } else {
             newComment.replies = [];
             comments = [
@@ -109,24 +121,67 @@ const Comments = () => {
 
     }
 
+    const handleDelete = (parentIndex, index) => {
+        const comments = state.comments;
+        if (Number.isInteger(parentIndex)) {
+            if (Number.isInteger(index)) {
+                comments[parentIndex].replies.splice(index, 1)
+            } else {
+                comments.splice(parentIndex, 1)
+            }
+        }
+        dispatch({
+            type: 'POST_COMMENT',
+            payload: {
+                comments: comments
+            }
+        })
+    }
+
     const handleOnReply = (parentIndex, index) => {
         dispatch({
             type: 'SET_REPLY_INDEX',
             payload: {
-                commentReplyIndex: parentIndex ? parentIndex : index,
+                commentIndex: parentIndex ? parentIndex : index,
             }
+        })
+    }
+
+    const handleReplyEdit = (parentIndex, index) => {
+        dispatch({
+            type: 'SET_REPLY_INDEX',
+            payload: {
+                commentIndex: parentIndex
+            }
+        })
+        dispatch({
+            type: 'SET_REPLY_EDIT_INDEX',
+            payload: {
+                replyEditIndex: index,
+            }
+        })
+        const name = state.comments[parentIndex].replies[index].name
+        const value = state.comments[parentIndex].replies[index].commentText
+        dispatch({
+            type: 'SET_COMMENTER_NAME',
+            payload: name
+        })
+
+        dispatch({
+            type: 'SET_COMMENT_TEXT',
+            payload: value
         })
     }
 
     const commentProps = {
         headerValue: 'Comment:',
-        inputValue: state.commentReplyIndex === '' ? state.name : '',
-        textAreaValue: state.commentReplyIndex === '' ? state.commentText: '',
+        inputValue: state.commentIndex === '' ? state.name : '',
+        textAreaValue: state.commentIndex === '' ? state.commentText : '',
         inputPlaceholder: "Name",
         onInputChange: handleNameChange,
         onTextAreaChange: handleCommentChange,
         onSubmit: handlePostComment,
-        isEditMode: true
+        isEditMode: true,
     }
 
     return (
@@ -143,6 +198,7 @@ const Comments = () => {
                             index: index,
                             onReply: handleOnReply,
                             isEditMode: false,
+                            onDelete: handleDelete
                         }
                         return (
                             <div className="comment-section" >
@@ -153,10 +209,13 @@ const Comments = () => {
                                     onCommentChange={handleCommentChange}
                                     onNameChange={handleNameChange}
                                     parentIndex={index}
-                                    commentReplyIndex={state.commentReplyIndex}
+                                    commentIndex={state.commentIndex}
+                                    replyEditIndex={state.replyEditIndex}
                                     name={state.name}
                                     commentText={state.commentText}
                                     replies={commentItem.replies}
+                                    onEdit={handleReplyEdit}
+                                    onDelete={handleDelete}
                                 />
                             </div>
                         )
