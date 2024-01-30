@@ -22,8 +22,8 @@ const CommentItem = (props) => {
 
     if (isEditMode) {
         return (
-            <div className="commentItem-wrapper">
-                <h5>{headerValue}</h5>
+            <div className={`${Number.isInteger(parentIndex) ? 'replyItem-wrapper' : 'commentItem-wrapper'}`}>
+                <p className="header-value">{headerValue}</p>
                 <input placeholder={inputPlaceholder} value={inputValue} onChange={(e) => onInputChange(e, parentIndex, index)} />
                 <textarea onInput={onTextAreaChange} value={textAreaValue}></textarea>
                 <button className="post-btn" onClick={() => onSubmit(parentIndex, index)}>Post</button>
@@ -31,17 +31,15 @@ const CommentItem = (props) => {
         )
     }
     return (
-        <div className="commentItem-saved-mode">
+        <div className={`${ Number.isInteger(parentIndex) ? 'reply-saved-mode': 'comment-saved-mode'}`}>
             <div className="comment-values">
-                <h5>{headerValue}</h5>
-                <p>{inputValue}</p>
+                <p className="input-value">{inputValue}</p>
                 <p>{textAreaValue}</p>
             </div>
-            <div className="edit-control">
+            <div className="edit-controls">
                 {!Number.isInteger(parentIndex) ? <button onClick={() => onReply(parentIndex, index)}>Reply</button> : null}
-                {Number.isInteger(parentIndex) ? <button onClick={() => onEdit(parentIndex, index)}>Edit</button> : null}
-                <button className="delete-btn" onClick={() => onDelete(parentIndex, index)}>Delete</button>
-
+                {<button onClick={() => onEdit(parentIndex, index)}>Edit</button>}
+                { Number.isInteger(parentIndex) ? <button className="delete-btn" onClick={() => onDelete(parentIndex, index)}>Delete</button> : null}
             </div>
         </div>
     )
