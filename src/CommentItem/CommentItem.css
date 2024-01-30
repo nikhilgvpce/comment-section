@@ -14,3 +14,11 @@ input, textarea {
 .post-btn {
     align-self: flex-end;
 }
+
+button {
+    width: 5vw;
+}
+
+.edit-controls {
+    display: flex;
+}
