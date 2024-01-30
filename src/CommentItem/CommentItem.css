@@ -4,6 +4,7 @@
     width: 50vw;
     background-color: lightgrey;
     padding: 15px;
+    border-radius: 4px;
 }
 
 .replyItem-wrapper {
@@ -19,6 +20,8 @@ input, textarea {
     padding: 16px;
     margin: 1%;
     background-color: white;
+    border: none;
+    outline: none;
 }
 
 .post-btn {
@@ -49,6 +52,7 @@ button {
     flex-direction: column;
     position: relative;
     margin-left: 3%;
+    border-radius: 4px;
 }
 
 .comment-saved-mode {
