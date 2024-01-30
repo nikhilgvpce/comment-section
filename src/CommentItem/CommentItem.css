@@ -1,0 +1,16 @@
+.commentItem-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 60vw;
+    background-color: gray;
+}
+
+input, textarea {
+    width: 55vw;
+    padding: 10px;
+    background-color: white;
+}
+
+.post-btn {
+    align-self: flex-end;
+}
