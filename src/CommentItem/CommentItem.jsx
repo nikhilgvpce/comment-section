@@ -38,7 +38,7 @@ const CommentItem = (props) => {
                 <p>{textAreaValue}</p>
             </div>
             <div className="edit-controls">
-                {!Number.isInteger(parentIndex) ? <button onClick={() => onReply(parentIndex, index)}>Reply</button> : null}
+                {!Number.isInteger(parentIndex) ? <button onClick={() => onReply(index)}>Reply</button> : null}
                 {<button onClick={() => onEdit(parentIndex, index)}>Edit</button>}
                 <IoTrashBin className="delete-btn" onClick={() => onDelete(parentIndex, index)}>Delete</IoTrashBin>
             </div>

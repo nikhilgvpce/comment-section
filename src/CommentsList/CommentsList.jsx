@@ -2,6 +2,7 @@ import { useReducer } from "react";
 import CommentItem from "../CommentItem/CommentItem";
 import Replies from "../Replies/Replies";
 import "./CommentsList.css";
+import Sort from "../Sort/Sort";
 
 const dummyComments = JSON.parse(localStorage.getItem('comments') || null)
 
@@ -14,12 +15,14 @@ const initialState = {
             name: 'Nikhil',
             commentText: 'Hi I am a comment',
             type: 'comment',
-            date: '',
-            replies: [{ name: 'Akhil', headerValue: 'Reply', commentText: 'Hi I am reply to a comment', date: '' }]
+            date: '12/01/2024',
+            replies: [{ name: 'Akhil', headerValue: 'Reply', commentText: 'Hi I am reply to a comment', date: '12/01/2024' }]
         }
     ],
     commentIndex: '',
-    replyEditIndex: ''
+    replyEditIndex: '',
+    isLowToHigh: true,
+    isCommentInEditMode: false,
 }
 
 function reducer(state = { initialState }, action = { type, payload: {} }) {
@@ -44,17 +47,22 @@ function reducer(state = { initialState }, action = { type, payload: {} }) {
                 commentText: '',
                 commentIndex: '',
                 replyEditIndex: ''
-
             }
-        case 'SET_REPLY_INDEX':
+        case 'SET_COMMENT_INDEX':
             return {
                 ...state,
                 commentIndex: action.payload.commentIndex,
+                isCommentInEditMode: action.payload.isCommentInEditMode,
             }
         case 'SET_REPLY_EDIT_INDEX':
             return {
                 ...state,
                 replyEditIndex: action.payload.replyEditIndex
+            }
+        case 'SET_SORTING_ORDER':
+            return {
+                ...state,
+                isLowToHigh: !state.isLowToHigh
             }
     }
 }
@@ -84,7 +92,7 @@ const Comments = () => {
         const newComment = {
             name: state.name,
             commentText: state.commentText,
-            date: '',
+            date: new Date().toLocaleDateString(),
         }
         let comments = state.comments
         if (Number.isInteger(parentIndex)) {
@@ -92,11 +100,19 @@ const Comments = () => {
             if (Number.isInteger(index)) {
                 comments[parentIndex].replies[index] = newComment
             } else {
-                comments[parentIndex].replies = [
-                    ...comments[parentIndex].replies,
-                    newComment
-                ]
+                if (comments[parentIndex].replies && comments[parentIndex].replies.length) {
+                    comments[parentIndex].replies = [
+                        ...comments[parentIndex].replies,
+                        newComment
+                    ]
+                } else {
+                    comments[parentIndex].replies = [
+                        newComment
+                    ]
+                }
             }
+        } else if (Number.isInteger(index)) {
+            comments[index] = {...newComment, replies: comments[index].replies};
         } else {
             newComment.replies = [];
             comments = [
@@ -121,7 +137,7 @@ const Comments = () => {
             } else {
                 comments.splice(parentIndex, 1)
             }
-        } else if(Number.isInteger(index)){
+        } else if (Number.isInteger(index)) {
             comments.splice(index, 1)
         }
         dispatch({
@@ -132,20 +148,44 @@ const Comments = () => {
         })
     }
 
-    const handleOnReply = (parentIndex, index) => {
+    const handleOnReply = (index) => {
         dispatch({
-            type: 'SET_REPLY_INDEX',
+            type: 'SET_COMMENT_INDEX',
             payload: {
-                commentIndex: parentIndex ? parentIndex : index,
+                commentIndex: index,
+                isCommentInEditMode: false
             }
         })
     }
 
     const handleReplyEdit = (parentIndex, index) => {
+        if (!Number.isInteger(parentIndex)) {
+            dispatch({
+                type: 'SET_COMMENT_INDEX',
+                payload: {
+                    commentIndex: index,
+                    isCommentInEditMode: true,
+                }
+            })
+
+            const name = state.comments[index].name
+            const value = state.comments[index].commentText;
+            dispatch({
+                type: 'SET_COMMENTER_NAME',
+                payload: name
+            })
+
+            dispatch({
+                type: 'SET_COMMENT_TEXT',
+                payload: value
+            })
+            return;
+        }
         dispatch({
-            type: 'SET_REPLY_INDEX',
+            type: 'SET_COMMENT_INDEX',
             payload: {
-                commentIndex: parentIndex
+                commentIndex: parentIndex,
+                isCommentInEditMode: false,
             }
         })
         dispatch({
@@ -167,6 +207,16 @@ const Comments = () => {
         })
     }
 
+    const handleSort = () => {
+        const comments = state.comments;
+        dispatch({
+            type: 'SET_SORTING_ORDER'
+        })
+        comments.sort((a, b) => {
+            return a.date < b.date
+        })
+    }
+
     const commentProps = {
         headerValue: 'Comment:',
         inputValue: state.commentIndex === '' ? state.name : '',
@@ -180,19 +230,28 @@ const Comments = () => {
 
     return (
         <>
-
             <div className="parent-comment" >
                 <CommentItem className="always-editmode" {...commentProps} />
+                <Sort isLowToHigh={state.isLowToHigh} onSort={handleSort} />
                 {
                     state.comments?.map((commentItem, index) => {
+                        const isEditMode = index === state.commentIndex && !Number.isInteger(state.replyEditIndex) && state.isCommentInEditMode;
                         const commentProps = {
                             headerValue: 'Comment',
                             inputValue: commentItem.name,
                             textAreaValue: commentItem.commentText,
                             index: index,
                             onReply: handleOnReply,
-                            isEditMode: false,
-                            onDelete: handleDelete
+                            onEdit: handleReplyEdit,
+                            onDelete: handleDelete,
+                            onSubmit: handlePostComment,
+                            onTextAreaChange: handleCommentChange,
+                            onInputChange: handleNameChange
+                        }
+                        if (isEditMode) {
+                            commentProps.inputValue = state.name;
+                            commentProps.textAreaValue = state.commentText;
+                            commentProps.isEditMode = true;
                         }
                         return (
                             <div className="comment-section" >
@@ -210,13 +269,13 @@ const Comments = () => {
                                     replies={commentItem.replies}
                                     onEdit={handleReplyEdit}
                                     onDelete={handleDelete}
+                                    isCommentInEditMode={state.isCommentInEditMode}
                                 />
                             </div>
                         )
                     })
                 }
             </div>
-
         </>
 
     )

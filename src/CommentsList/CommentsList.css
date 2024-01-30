@@ -1,13 +1,12 @@
-.comment-section, .reply-section {
+.comment-section {
     width: 60vw;
-}
-
-.static-comment {
-    display: flex;
-    flex-direction: column;
 }
 
 .parent-comment {
     margin-top: 4%;
+}
+
+.sort {
+    right: 0;
 }
 

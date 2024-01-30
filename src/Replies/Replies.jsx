@@ -1,6 +1,6 @@
 import CommentItem from "../CommentItem/CommentItem"
 
-const Replies = ({ replies = [], name, commentText, onPostSubmit, onCommentChange, onNameChange, parentIndex, commentIndex, replyEditIndex, onEdit, onDelete }) => {
+const Replies = ({ replies = [], isCommentInEditMode, name, commentText, onPostSubmit, onCommentChange, onNameChange, parentIndex, commentIndex, replyEditIndex, onEdit, onDelete }) => {
     let commentProps = {
         inputPlaceholder: "Name",
         headerValue: 'Reply',
@@ -10,7 +10,7 @@ const Replies = ({ replies = [], name, commentText, onPostSubmit, onCommentChang
         parentIndex: parentIndex,
     }
 
-    if (parentIndex === commentIndex && !Number.isInteger(replyEditIndex)) {
+    if (parentIndex === commentIndex && !Number.isInteger(replyEditIndex) && !isCommentInEditMode) {
         commentProps = {
             ...commentProps,
             textAreaValue: commentText,
@@ -21,11 +21,11 @@ const Replies = ({ replies = [], name, commentText, onPostSubmit, onCommentChang
     return (
         <>
             {
-               parentIndex === commentIndex && !Number.isInteger(replyEditIndex)  ? <CommentItem {...commentProps} isEditMode={true} /> : null
+               parentIndex === commentIndex && !Number.isInteger(replyEditIndex) && !isCommentInEditMode  ? <CommentItem {...commentProps} isEditMode={true} /> : null
             }
             {
                 replies.length ? replies?.map((reply, index) => {
-                    const isEditMode = parentIndex === commentIndex && replyEditIndex === index
+                    const isEditMode = parentIndex === commentIndex && replyEditIndex === index && !isCommentInEditMode
 
                     if (isEditMode) {
                         return (
