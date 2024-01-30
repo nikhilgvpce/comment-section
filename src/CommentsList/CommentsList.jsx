@@ -51,7 +51,8 @@ function reducer(state = { initialState }, action = { type, payload: {} }) {
                 comments: action.payload.comments,
                 name: '',
                 commentText: '',
-                commentIndex: ''
+                commentIndex: '',
+                replyEditIndex: ''
 
             }
         case 'SET_REPLY_INDEX':
@@ -129,6 +130,8 @@ const Comments = () => {
             } else {
                 comments.splice(parentIndex, 1)
             }
+        } else if(Number.isInteger(index)){
+            comments.splice(index, 1)
         }
         dispatch({
             type: 'POST_COMMENT',
