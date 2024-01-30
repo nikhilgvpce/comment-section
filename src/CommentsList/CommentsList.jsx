@@ -3,6 +3,7 @@ import CommentItem from "../CommentItem/CommentItem";
 import Replies from "../Replies/Replies";
 import "./CommentsList.css";
 import Sort from "../Sort/Sort";
+import { getDate, sort } from "../../utils";
 
 const dummyComments = JSON.parse(localStorage.getItem('comments') || null)
 
@@ -46,7 +47,7 @@ function reducer(state = { initialState }, action = { type, payload: {} }) {
                 name: '',
                 commentText: '',
                 commentIndex: '',
-                replyEditIndex: ''
+                replyEditIndex: '',
             }
         case 'SET_COMMENT_INDEX':
             return {
@@ -92,7 +93,7 @@ const Comments = () => {
         const newComment = {
             name: state.name,
             commentText: state.commentText,
-            date: new Date().toLocaleDateString(),
+            date: getDate(),
         }
         let comments = state.comments
         if (Number.isInteger(parentIndex)) {
@@ -112,7 +113,7 @@ const Comments = () => {
                 }
             }
         } else if (Number.isInteger(index)) {
-            comments[index] = {...newComment, replies: comments[index].replies};
+            comments[index] = { ...newComment, replies: comments[index].replies };
         } else {
             newComment.replies = [];
             comments = [
@@ -208,12 +209,21 @@ const Comments = () => {
     }
 
     const handleSort = () => {
-        const comments = state.comments;
+        let comments = state.comments;
         dispatch({
             type: 'SET_SORTING_ORDER'
         })
-        comments.sort((a, b) => {
-            return a.date < b.date
+        sort(comments, state.isLowToHigh)
+        comments.forEach((comment) => {
+            if(comment.replies) {
+                sort(comment.replies, state.isLowToHigh)
+            }
+        })
+        dispatch({
+            type: 'POST_COMMENT',
+            payload: {
+                comments
+            }
         })
     }
 
@@ -240,6 +250,7 @@ const Comments = () => {
                             headerValue: 'Comment',
                             inputValue: commentItem.name,
                             textAreaValue: commentItem.commentText,
+                            dateValue: commentItem.date,
                             index: index,
                             onReply: handleOnReply,
                             onEdit: handleReplyEdit,

@@ -67,6 +67,12 @@ button {
 .comment-values {
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.date-time {
+    position: absolute;
+    right: 0;
 }
 
 .comment-values  p, .comment-values  .delete-btn {

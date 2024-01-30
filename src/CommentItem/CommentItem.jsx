@@ -8,6 +8,7 @@ const CommentItem = (props) => {
         headerValue,
         inputPlaceholder,
         inputValue,
+        dateValue,
         onInputChange,
         textAreaValue,
         onTextAreaChange,
@@ -35,6 +36,7 @@ const CommentItem = (props) => {
         <div className={`${Number.isInteger(parentIndex) ? 'reply-saved-mode' : 'comment-saved-mode'}`}>
             <div className="comment-values">
                 <p className="input-value">{inputValue}</p>
+                <p className="date-time">{dateValue.formatted}</p>
                 <p>{textAreaValue}</p>
             </div>
             <div className="edit-controls">

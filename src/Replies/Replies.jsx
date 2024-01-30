@@ -50,6 +50,7 @@ const Replies = ({ replies = [], isCommentInEditMode, name, commentText, onPostS
                             inputValue={reply.name}
                             headerValue={reply.headerValue}
                             textAreaValue={reply.commentText}
+                            dateValue={reply.date}
                             name={reply.name}
                             onEdit={onEdit}
                             onDelete={onDelete}
