@@ -22,3 +22,14 @@ button {
 .edit-controls {
     display: flex;
 }
+
+.commentItem-saved-mode {
+    width: 60vw;
+    margin: 1%;
+    background-color: gray;
+}
+
+.comment-values {
+    display: flex;
+    flex-direction: column;
+}

@@ -6,29 +6,42 @@ const CommentItem = (props) => {
     const {
         headerValue,
         inputPlaceholder,
-        onInputChange,
         inputValue,
-        onTextAreaChange,
+        onInputChange,
         textAreaValue,
-        type,
+        onTextAreaChange,
         isEditMode,
         onSubmit,
 
-        onCommentEdit,
-        onCommentDelete,
-        index,
+        onReply,
+        onEdit,
+        onDelete,
+        parentIndex,
+        index
     } = props;
-    return (
-        <div className="commentItem-wrapper">
-            <h5>{headerValue}</h5>
-            <input placeholder={inputPlaceholder} onChange={onInputChange} value={inputValue} />
-            <textarea onChange={onTextAreaChange}>{textAreaValue}</textarea>
-            <button className="post-btn">Post</button>
-            <div children="edit-controls">
-            <button>Reply</button>
-                <button>Edit</button>
+
+    if (isEditMode) {
+        return (
+            <div className="commentItem-wrapper">
+                <h5>{headerValue}</h5>
+                <input placeholder={inputPlaceholder} value={inputValue} onChange={(e) => onInputChange(e, parentIndex, index)} />
+                <textarea onInput={onTextAreaChange} value={textAreaValue}></textarea>
+                <button className="post-btn" onClick={()=> onSubmit(parentIndex, index)}>Post</button>
             </div>
-            <button>Delete</button>
+        )
+    }
+    return (
+        <div className="commentItem-saved-mode">
+            <div className="comment-values">
+                <h5>{headerValue}</h5>
+                <p>{inputValue}</p>
+                <p>{textAreaValue}</p>
+            </div>
+            <div className="edit-control">
+                <button onClick={() => onReply(parentIndex, index)}>Reply</button>
+                <button onClick={() => onEdit(parentIndex, index)}>Edit</button>
+            </div>
+            <button onClick={() => onDelete(parentIndex, index)}>Delete</button>
         </div>
     )
 }

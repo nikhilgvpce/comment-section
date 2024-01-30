@@ -8,13 +8,16 @@ const initialState = {
     commentText: '',
     comments: [
         {
+            headerValue: 'Comment:',
             name: 'Nikhil',
-            comment: 'Hi I am a comment',
+            commentText: 'Hi I am a comment',
             type: 'comment',
             date: '',
             replies: [{ name: 'Akhil', comment: 'Hi I am reply to a comment', date: '' }]
         }
     ],
+    commentReplyIndex: '',
+    replyEditIndex: ''
 }
 
 function modifyComments(comments, indexes = [], commenterName, commentText) {
@@ -39,19 +42,19 @@ function reducer(state = { initialState }, action = { type, payload: {} }) {
                 commentText: action.payload
             }
         case 'POST_COMMENT':
-            const comments = state.comments;
-            modifyComments(comments, indexes)
+            // modifyComments(comments, indexes)
             return {
                 ...state,
-                comments: [
-                    ...state.comments,
-                    {
-                        name: state.name,
-                        commentText: state.commentText,
-                        type: action.payload.type,
-                        date: new Date().toLocaleDateString()
-                    }
-                ]
+                comments: action.payload.comments,
+                name: '',
+                commentText: '',
+                commentReplyIndex: ''
+
+            }
+        case 'SET_REPLY_INDEX':
+            return {
+                ...state,
+                commentReplyIndex: action.payload.commentReplyIndex
             }
     }
 }
@@ -60,11 +63,8 @@ const Comments = () => {
 
     const [state, dispatch] = useReducer(reducer, initialState)
 
-    const editIndex = [];
-
     const handleNameChange = (e) => {
         const value = e.target.value;
-        if (!value) return;
         dispatch({
             type: 'SET_COMMENTER_NAME',
             payload: value
@@ -73,47 +73,72 @@ const Comments = () => {
 
     const handleCommentChange = (e) => {
         const value = e.target.value;
-        if (!value) return;
         dispatch({
             type: 'SET_COMMENT_TEXT',
             payload: value
         })
     }
 
-    const handlePostComment = () => {
-        if (!state.name || state.commentText) return;
+    const handlePostComment = (parentIndex, index) => {
+        if (!state.name || !state.commentText) return;
+        const newComment = {
+            headerValue: 'Comment',
+            name: state.name,
+            commentText: state.commentText,
+            type: 'comment',
+            date: '',
+            replies: []
+        }
+        const comments = state.comments
+        if (parentIndex && index) {
+            comments[parentIndex].replies = [
+                ...comments[parentIndex].replies,
+                newComment
+            ]
+        }
         dispatch({
             type: 'POST_COMMENT',
             payload: {
-                type: 'COMMENT'
+                comments: [...state.comments, newComment]
+            }
+        })
+
+    }
+
+    const handleOnReply = (parentIndex, index) => {
+        dispatch({
+            type: 'SET_REPLY_INDEX',
+            payload: {
+                commentReplyIndex: parentIndex ? parentIndex : index,
             }
         })
     }
 
     const commentProps = {
+        headerValue: 'Comment:',
+        inputValue: state.commentReplyIndex === '' ? state.name : '',
+        textAreaValue: !state.commentReplyIndex === '' ? state.commentText: '',
         inputPlaceholder: "Name",
         onInputChange: handleNameChange,
-        inputValue: state.name,
         onTextAreaChange: handleCommentChange,
-        textAreaValue: state.comment,
         onSubmit: handlePostComment,
+        isEditMode: true
     }
 
     return (
         <>
 
             <div className="parent-comment" >
-                <CommentItem {...commentProps} />
+                <CommentItem className="always-editmode" {...commentProps} />
                 {
                     state.comments?.map((commentItem, index) => {
                         const commentProps = {
-                            inputPlaceholder: "Name",
-                            onInputChange: handleNameChange,
+                            headerValue: 'Comment',
                             inputValue: commentItem.name,
-                            onTextAreaChange: handleCommentChange,
-                            textAreaValue: commentItem.comment,
-                            onSubmit: handlePostComment,
-                            index: index
+                            textAreaValue: commentItem.commentText,
+                            index: index,
+                            onReply: handleOnReply,
+                            isEditMode: false,
                         }
                         return (
                             <div className="comment-section" >
@@ -123,6 +148,10 @@ const Comments = () => {
                                     onPostSubmit={handlePostComment}
                                     onCommentChange={handleCommentChange}
                                     onNameChange={handleNameChange}
+                                    parentIndex={index}
+                                    commentReplyIndex={state.commentReplyIndex}
+                                    name={state.name}
+                                    commentText={state.commentText}
                                     {...commentItem.replies}
                                 />
                             </div>
