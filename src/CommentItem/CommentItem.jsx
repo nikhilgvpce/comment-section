@@ -1,3 +1,4 @@
+import { IoTrashBin } from "react-icons/io5";
 import "./CommentItem.css"
 
 
@@ -26,7 +27,7 @@ const CommentItem = (props) => {
                 <p className="header-value">{headerValue}</p>
                 <input placeholder={inputPlaceholder} value={inputValue} onChange={(e) => onInputChange(e, parentIndex, index)} />
                 <textarea placeholder={headerValue.replace(':', '')} onInput={onTextAreaChange} value={textAreaValue}></textarea>
-                <button className="post-btn" onClick={() => onSubmit(parentIndex, index)}>Post</button>
+                <button className="post-btn" onClick={() => onSubmit(parentIndex, index)}>POST</button>
             </div>
         )
     }
@@ -39,7 +40,7 @@ const CommentItem = (props) => {
             <div className="edit-controls">
                 {!Number.isInteger(parentIndex) ? <button onClick={() => onReply(parentIndex, index)}>Reply</button> : null}
                 {<button onClick={() => onEdit(parentIndex, index)}>Edit</button>}
-                <button className="delete-btn" onClick={() => onDelete(parentIndex, index)}>Delete</button>
+                <IoTrashBin className="delete-btn" onClick={() => onDelete(parentIndex, index)}>Delete</IoTrashBin>
             </div>
         </div>
     )

@@ -22,15 +22,6 @@ const initialState = {
     replyEditIndex: ''
 }
 
-function modifyComments(comments, indexes = [], commenterName, commentText) {
-    const comment = comments[indexes[0]];
-    if (indexes.length && indexes.length == 1) {
-        comments[indexes[0]] = modifyComments(comment.replies, indexes.slice(1))
-    } else {
-        return comments
-    }
-}
-
 function reducer(state = { initialState }, action = { type, payload: {} }) {
     switch (action.type) {
         case 'SET_COMMENTER_NAME':
