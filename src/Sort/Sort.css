@@ -1,5 +1,8 @@
 
 .sort {
-    position: relative;
-    left: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: right;
+    margin-right: 12%;
+
 }
