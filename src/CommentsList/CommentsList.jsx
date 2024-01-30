@@ -13,7 +13,7 @@ const initialState = {
             commentText: 'Hi I am a comment',
             type: 'comment',
             date: '',
-            replies: [{ name: 'Akhil', comment: 'Hi I am reply to a comment', date: '' }]
+            replies: [{ name: 'Akhil', headerValue: 'Reply', commentText: 'Hi I am reply to a comment', date: '' }]
         }
     ],
     commentReplyIndex: '',
@@ -82,24 +82,28 @@ const Comments = () => {
     const handlePostComment = (parentIndex, index) => {
         if (!state.name || !state.commentText) return;
         const newComment = {
-            headerValue: 'Comment',
             name: state.name,
             commentText: state.commentText,
-            type: 'comment',
             date: '',
-            replies: []
         }
-        const comments = state.comments
-        if (parentIndex && index) {
+        let comments = state.comments
+        if (Number.isInteger(parentIndex)) {
+            newComment.headerValue = 'Reply'
             comments[parentIndex].replies = [
                 ...comments[parentIndex].replies,
+                newComment
+            ]
+        } else {
+            newComment.replies = [];
+            comments = [
+                ...comments,
                 newComment
             ]
         }
         dispatch({
             type: 'POST_COMMENT',
             payload: {
-                comments: [...state.comments, newComment]
+                comments: comments
             }
         })
 
@@ -117,7 +121,7 @@ const Comments = () => {
     const commentProps = {
         headerValue: 'Comment:',
         inputValue: state.commentReplyIndex === '' ? state.name : '',
-        textAreaValue: !state.commentReplyIndex === '' ? state.commentText: '',
+        textAreaValue: state.commentReplyIndex === '' ? state.commentText: '',
         inputPlaceholder: "Name",
         onInputChange: handleNameChange,
         onTextAreaChange: handleCommentChange,
@@ -152,7 +156,7 @@ const Comments = () => {
                                     commentReplyIndex={state.commentReplyIndex}
                                     name={state.name}
                                     commentText={state.commentText}
-                                    {...commentItem.replies}
+                                    replies={commentItem.replies}
                                 />
                             </div>
                         )

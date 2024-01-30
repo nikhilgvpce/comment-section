@@ -1,16 +1,22 @@
 import CommentItem from "../CommentItem/CommentItem"
 
 const Replies = ({ replies = [], name, commentText  ,onPostSubmit, onCommentChange, onNameChange, parentIndex, commentReplyIndex }) => {
-    const commentProps = {
+    let commentProps = {
         inputPlaceholder: "Name",
-        textAreaValue: commentText,
         headerValue: 'Reply',
         onInputChange: onNameChange,
-        inputValue: name,
         onTextAreaChange: onCommentChange,
         onSubmit: onPostSubmit,
-        parentIndex,
+        parentIndex: parentIndex,
         isEditMode: parentIndex === commentReplyIndex
+    }
+
+    if(parentIndex === commentReplyIndex) {
+        commentProps = {
+            ...commentProps,
+            textAreaValue: commentText,
+            inputValue: name,
+        }
     }
 
     return (
@@ -21,7 +27,15 @@ const Replies = ({ replies = [], name, commentText  ,onPostSubmit, onCommentChan
             {
                 replies.length  ? replies?.map((reply, index) => {
                     return (
-                        <CommentItem {...commentProps} inputValue={reply.inputValue} headerValue={reply.headerValue} />
+                        <CommentItem 
+                        {...commentProps} 
+                        parentIndex={parentIndex} 
+                        index={index} 
+                        inputValue={reply.name} 
+                        headerValue={reply.headerValue}
+                        textAreaValue={reply.commentText}
+                        name={reply.name}
+                    />
                     )
                 }) : null
             }

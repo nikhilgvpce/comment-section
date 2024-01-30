@@ -38,8 +38,8 @@ const CommentItem = (props) => {
                 <p>{textAreaValue}</p>
             </div>
             <div className="edit-control">
-                <button onClick={() => onReply(parentIndex, index)}>Reply</button>
-                <button onClick={() => onEdit(parentIndex, index)}>Edit</button>
+                { ! Number.isInteger(parentIndex) ? <button onClick={() => onReply(parentIndex, index)}>Reply</button> : null }
+                { Number.isInteger(parentIndex) ? <button onClick={() => onEdit(parentIndex, index)}>Edit</button> : null }
             </div>
             <button onClick={() => onDelete(parentIndex, index)}>Delete</button>
         </div>
