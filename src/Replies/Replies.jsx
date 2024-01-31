@@ -10,7 +10,9 @@ const Replies = ({ replies = [], isCommentInEditMode, name, commentText, onPostS
         parentIndex: parentIndex,
     }
 
-    if (parentIndex === commentIndex && !Number.isInteger(replyEditIndex) && !isCommentInEditMode) {
+    const isReplyAdd = parentIndex === commentIndex && !isCommentInEditMode
+
+    if (isReplyAdd && !Number.isInteger(replyEditIndex)) {
         commentProps = {
             ...commentProps,
             textAreaValue: commentText,
@@ -21,13 +23,13 @@ const Replies = ({ replies = [], isCommentInEditMode, name, commentText, onPostS
     return (
         <>
             {
-               parentIndex === commentIndex && !Number.isInteger(replyEditIndex) && !isCommentInEditMode  ? <CommentItem {...commentProps} isEditMode={true} /> : null
+               isReplyAdd && !Number.isInteger(replyEditIndex)  ? <CommentItem {...commentProps} isEditMode={isReplyAdd} /> : null
             }
             {
                 replies.length ? replies?.map((reply, index) => {
-                    const isEditMode = parentIndex === commentIndex && replyEditIndex === index && !isCommentInEditMode
+                    const isReplyEditMode = isReplyAdd && replyEditIndex === index
 
-                    if (isEditMode) {
+                    if (isReplyEditMode) {
                         return (
                             <CommentItem
                                 {...commentProps}

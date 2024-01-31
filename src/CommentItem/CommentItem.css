@@ -24,6 +24,10 @@ input, textarea {
     outline: none;
 }
 
+textarea {
+    resize:none;
+}
+
 .post-btn {
     background: deepskyblue;
     color: white;
