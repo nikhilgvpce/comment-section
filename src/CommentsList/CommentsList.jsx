@@ -16,13 +16,34 @@ const initialState = {
             name: 'Nikhil',
             commentText: 'Hi I am a comment',
             type: 'comment',
-            date: '12/01/2024',
-            replies: [{ name: 'Akhil', headerValue: 'Reply', commentText: 'Hi I am reply to a comment', date: '12/01/2024' }]
+            date: {
+                "formatted": "3rd February 2024",
+                "unformatted": "1706936050651"
+            },
+            replies: [
+                {
+                    "name": "Name 12",
+                    "commentText": "Reply 12",
+                    "date": {
+                        "formatted": "3rd February 2024",
+                        "unformatted": "1706936582883"
+                    },
+                    "headerValue": "Reply"
+                },
+                {
+                    "name": "Name 11",
+                    "commentText": "Reply 11",
+                    "date": {
+                        "formatted": "3rd February 2024",
+                        "unformatted": "1706936571461"
+                    },
+                    "headerValue": "Reply"
+                }
+            ]
         }
     ],
     commentIndex: '',
     replyEditIndex: '',
-    isLowToHigh: true,
     isCommentInEditMode: false,
 }
 
@@ -39,7 +60,6 @@ function reducer(state = { initialState }, action = { type, payload: {} }) {
                 commentText: action.payload
             }
         case 'POST_COMMENT':
-            // modifyComments(comments, indexes)
             localStorage.setItem('comments', JSON.stringify(action.payload.comments))
             return {
                 ...state,
@@ -59,11 +79,6 @@ function reducer(state = { initialState }, action = { type, payload: {} }) {
             return {
                 ...state,
                 replyEditIndex: action.payload.replyEditIndex
-            }
-        case 'SET_SORTING_ORDER':
-            return {
-                ...state,
-                isLowToHigh: !state.isLowToHigh
             }
     }
 }
@@ -208,25 +223,6 @@ const Comments = () => {
         })
     }
 
-    const handleSort = () => {
-        let comments = state.comments;
-        dispatch({
-            type: 'SET_SORTING_ORDER'
-        })
-        sort(comments, state.isLowToHigh)
-        comments.forEach((comment) => {
-            if(comment.replies) {
-                sort(comment.replies, state.isLowToHigh)
-            }
-        })
-        dispatch({
-            type: 'POST_COMMENT',
-            payload: {
-                comments
-            }
-        })
-    }
-
     const commentProps = {
         headerValue: 'Comment:',
         inputValue: state.commentIndex === '' ? state.name : '',
@@ -242,7 +238,7 @@ const Comments = () => {
         <>
             <div className="parent-comment" >
                 <CommentItem className="always-editmode" {...commentProps} />
-                <Sort isLowToHigh={state.isLowToHigh} onSort={handleSort} />
+                <Sort comments={state.comments} dispatch={dispatch}/>
                 {
                     state.comments?.map((commentItem, index) => {
                         const isEditMode = index === state.commentIndex && !Number.isInteger(state.replyEditIndex) && state.isCommentInEditMode;
