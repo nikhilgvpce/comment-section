@@ -10,6 +10,7 @@ const dummyComments = JSON.parse(localStorage.getItem('comments') || null)
 const initialState = {
     name: '',
     commentText: '',
+    date: '',
     comments: dummyComments || [
         {
             headerValue: 'Comment:',
@@ -108,29 +109,35 @@ const Comments = () => {
         const newComment = {
             name: state.name,
             commentText: state.commentText,
-            date: getDate(),
         }
         let comments = state.comments
         if (Number.isInteger(parentIndex)) {
             newComment.headerValue = 'Reply';
             if (Number.isInteger(index)) {
-                comments[parentIndex].replies[index] = newComment
+                const existingReply = comments[parentIndex].replies[index]
+                comments[parentIndex].replies[index] = { ...existingReply, ...newComment }
             } else {
+                const newReply = {
+                    ...newComment,
+                    date: getDate()
+                }
                 if (comments[parentIndex].replies && comments[parentIndex].replies.length) {
                     comments[parentIndex].replies = [
                         ...comments[parentIndex].replies,
-                        newComment
+                        newReply
                     ]
                 } else {
                     comments[parentIndex].replies = [
-                        newComment
+                        newReply
                     ]
                 }
             }
         } else if (Number.isInteger(index)) {
-            comments[index] = { ...newComment, replies: comments[index].replies };
+            const existingComment = comments[index];
+            comments[index] = { ...existingComment, ...newComment };
         } else {
             newComment.replies = [];
+            newComment.date = getDate();
             comments = [
                 ...comments,
                 newComment
@@ -174,7 +181,7 @@ const Comments = () => {
         })
     }
 
-    const handleReplyEdit = (parentIndex, index) => {
+    const handleReplyEdit = (parentIndex, index, dateValue) => {
         if (!Number.isInteger(parentIndex)) {
             dispatch({
                 type: 'SET_COMMENT_INDEX',
@@ -238,7 +245,7 @@ const Comments = () => {
         <>
             <div className="parent-comment" >
                 <CommentItem className="always-editmode" {...commentProps} />
-                <Sort comments={state.comments} dispatch={dispatch}/>
+                <Sort comments={state.comments} dispatch={dispatch} />
                 {
                     state.comments?.map((commentItem, index) => {
                         const isEditMode = index === state.commentIndex && !Number.isInteger(state.replyEditIndex) && state.isCommentInEditMode;

@@ -36,12 +36,12 @@ const CommentItem = (props) => {
         <div className={`${Number.isInteger(parentIndex) ? 'reply-saved-mode' : 'comment-saved-mode'}`}>
             <div className="comment-values">
                 <p className="input-value">{inputValue}</p>
-                <p className="date-time">{dateValue.formatted}</p>
+                <p className="date-time">{dateValue?.formatted}</p>
                 <p>{textAreaValue}</p>
             </div>
             <div className="edit-controls">
                 {!Number.isInteger(parentIndex) ? <button onClick={() => onReply(index)}>Reply</button> : null}
-                {<button onClick={() => onEdit(parentIndex, index)}>Edit</button>}
+                {<button onClick={() => onEdit(parentIndex, index, dateValue)}>Edit</button>}
                 <IoTrashBin className="delete-btn" onClick={() => onDelete(parentIndex, index)}>Delete</IoTrashBin>
             </div>
         </div>
